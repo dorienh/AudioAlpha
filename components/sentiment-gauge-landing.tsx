@@ -1,81 +1,57 @@
+
 "use client"
 
 import { useEffect, useState } from "react"
 
 interface SentimentGaugeProps {
-  value: number
-  crypto: string
+  label: string
+  subtitle: string
+  value: number // 0-100
+  color: string
 }
 
-export function SentimentGauge({ value, crypto }: SentimentGaugeProps) {
-  const [animatedValue, setAnimatedValue] = useState(0)
+export function SentimentGauge({ label, subtitle, value, color }: SentimentGaugeProps) {
+  const [displayValue, setDisplayValue] = useState(0)
 
+  // Animate value on mount
   useEffect(() => {
     const timer = setTimeout(() => {
-      setAnimatedValue(value)
-    }, 500)
+      setDisplayValue(value)
+    }, 100)
     return () => clearTimeout(timer)
   }, [value])
 
-  const getSentimentColor = (val: number) => {
-    if (val >= 70) return "#10b981" // green
-    if (val >= 40) return "#f59e0b" // amber
-    return "#ef4444" // red
+  // Calculate rotation for the needle (-90 to 90 degrees)
+  const rotation = (displayValue / 100) * 180 - 90
+
+  // Determine sentiment
+  const getSentiment = (val: number) => {
+    if (val >= 70) return { text: "Bullish", color: "text-green-500" }
+    if (val >= 40) return { text: "Neutral", color: "text-yellow-500" }
+    return { text: "Bearish", color: "text-red-500" }
   }
 
-  const getSentimentLabel = (val: number) => {
-    if (val >= 70) return "Bullish"
-    if (val >= 40) return "Neutral"
-    return "Bearish"
-  }
-
-  const rotation = (animatedValue / 100) * 180 - 90
-  const color = getSentimentColor(value)
-  const label = getSentimentLabel(value)
+  const sentiment = getSentiment(value)
 
   return (
-    <div className="relative">
-      <svg viewBox="0 0 200 120" className="w-full">
-        {/* Background arc */}
-        <path
-          d="M 20 100 A 80 80 0 0 1 180 100"
-          fill="none"
-          stroke="rgb(51, 65, 85)"
-          strokeWidth="12"
-          strokeLinecap="round"
-        />
+    <div className="flex flex-col items-center">
+      <div className="relative w-full aspect-square max-w-[200px]">
+        {/* Background Arc */}
+        <svg className="w-full h-full" viewBox="0 0 200 120">
+          {/* Red to Green gradient arc */}
+          <defs>
+            <linearGradient id={`gauge-gradient-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgb(239, 68, 68)" />
+              <stop offset="50%" stopColor="rgb(234, 179, 8)" />
+              <stop offset="100%" stopColor="rgb(34, 197, 94)" />
+            </linearGradient>
+          </defs>
 
-        {/* Colored arc */}
-        <path
-          d="M 20 100 A 80 80 0 0 1 180 100"
-          fill="none"
-          stroke={color}
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray="251.2"
-          strokeDashoffset={251.2 - (251.2 * animatedValue) / 100}
-          style={{
-            transition: "stroke-dashoffset 1.5s ease-out",
-          }}
-        />
-
-        {/* Needle */}
-        <g transform={`rotate(${rotation} 100 100)`} style={{ transition: "transform 1.5s ease-out" }}>
-          <line x1="100" y1="100" x2="100" y2="30" stroke={color} strokeWidth="3" strokeLinecap="round" />
-          <circle cx="100" cy="100" r="6" fill={color} />
-        </g>
-
-        {/* Center circle */}
-        <circle cx="100" cy="100" r="8" fill="rgb(15, 23, 42)" />
-      </svg>
-
-      {/* Value display */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center mt-8">
-        <div className="text-4xl font-bold text-white">{animatedValue}%</div>
-        <div className="text-sm font-medium mt-1" style={{ color }}>
-          {label}
-        </div>
-      </div>
-    </div>
-  )
-}
+          {/* Background arc */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth="12"
+            strokeLinecap="round"
+          />
