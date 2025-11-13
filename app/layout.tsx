@@ -38,10 +38,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <head>
+        <script
+          src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`}
+          async
+          defer
+        ></script>
+      </head>
+      <body className="font-sans antialiased">
         {children}
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
