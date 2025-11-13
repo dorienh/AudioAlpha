@@ -55,21 +55,29 @@ export function AudioAlphaLanding() {
       console.log("🧩 reCAPTCHA token:", token.slice(0, 20) + "...");
 
       // ✅ Send to API
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token }),
-      });
-
-      const data = await response.json();
-      console.log("Server response:", data);
-
-      if (response.ok) {
-        setIsSubmitted(true);
-        setEmail("");
-      } else {
-        setError(data.error || "Something went wrong. Please try again.");
+      try {
+        const response = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, token }), // send email + reCAPTCHA token
+        });
+      
+        console.log("Fetch response status:", response.status);
+      
+        const data = await response.json();
+        console.log("Server response data:", data);
+      
+        if (response.ok) {
+          setIsSubmitted(true);
+          setEmail("");
+        } else {
+          setError(data.error || "Something went wrong. Please try again.");
+        }
+      } catch (err) {
+        console.error("Fetch failed:", err);
+        setError("Something went wrong. Please try again.");
       }
+
     } catch (err: any) {
       console.error("❌ Submission error:", err);
       setError(err.message || "Something went wrong. Please try again.");
