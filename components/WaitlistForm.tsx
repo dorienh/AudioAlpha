@@ -1,39 +1,20 @@
 "use client";
-
 import { useState } from "react";
-
 export default function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("Submitting...");
-
     try {
-      // Ensure reCAPTCHA is loaded
-      const token = await new Promise<string>((resolve, reject) => {
-        if (!window.grecaptcha) return reject(new Error("reCAPTCHA not loaded"));
-        window.grecaptcha.ready(() => {
-          window.grecaptcha
-            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_KEY!, { action: "submit" })
-            .then(resolve)
-            .catch(reject);
-        });
-      });
-
-      console.log("reCAPTCHA token:", token.slice(0, 20) + "...");
-
-      // Send email + token to your route
+      console.log("Submitting email:", email);
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token }),
+        body: JSON.stringify({ email }), // No token
       });
-
       const data = await res.json();
       console.log("Server response:", data);
-
       if (res.ok) setStatus("✅ Signed up successfully!");
       else setStatus(`❌ ${data.error || "Unknown error"}`);
     } catch (err) {
@@ -41,7 +22,6 @@ export default function WaitlistForm() {
       setStatus("Error submitting");
     }
   }
-
   return (
     <form onSubmit={handleSubmit}>
       <input
@@ -53,11 +33,8 @@ export default function WaitlistForm() {
       />
       <button type="submit">Join Waitlist</button>
       <p>{status}</p>
-
-      {/* reCAPTCHA script (must include this in your page or _app.tsx) */}
-      <script
-        src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`}
-      />
+      {/* Comment out reCAPTCHA script */}
+      {/* <script src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`} /> */}
     </form>
   );
 }
