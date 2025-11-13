@@ -9,7 +9,8 @@ const supabase = createClient(
 export async function POST(request: Request) {
   try {
     console.log("⚡ /api/waitlist POST called");
-    const { email, token } = await request.json();
+    const body = await request.json();
+    const { email, token } = body;
     console.log("📨 Received body:", body);
 
     if (!email || !email.includes("@")) {
