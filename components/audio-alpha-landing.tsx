@@ -34,25 +34,25 @@ export function AudioAlphaLanding() {
 
     setIsSubmitting(true);
 
-    try {
-      // ✅ Get reCAPTCHA token before sending to backend
-      const grecaptcha = window.grecaptcha;
-      if (!grecaptcha) {
-        throw new Error("reCAPTCHA not loaded yet");
-      }
+    // try {
+    //   // ✅ Get reCAPTCHA token before sending to backend
+    //   const grecaptcha = window.grecaptcha;
+    //   if (!grecaptcha) {
+    //     throw new Error("reCAPTCHA not loaded yet");
+    //   }
 
-      const token = await new Promise<string>((resolve, reject) => {
-      if (!window.grecaptcha) return reject(new Error("reCAPTCHA not loaded"));
+    //   const token = await new Promise<string>((resolve, reject) => {
+    //   if (!window.grecaptcha) return reject(new Error("reCAPTCHA not loaded"));
     
-        window.grecaptcha.ready(() => {
-          window.grecaptcha
-            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_KEY!, { action: "submit" })
-            .then(resolve)
-            .catch(reject);
-        });
-      });
+    //     window.grecaptcha.ready(() => {
+    //       window.grecaptcha
+    //         .execute(process.env.NEXT_PUBLIC_RECAPTCHA_KEY!, { action: "submit" })
+    //         .then(resolve)
+    //         .catch(reject);
+    //     });
+    //   });
 
-      console.log("🧩 reCAPTCHA token:", token.slice(0, 20) + "...");
+    //   console.log("🧩 reCAPTCHA token:", token.slice(0, 20) + "...");
 
       // ✅ Send to API
       const response = await fetch("/api/waitlist", {
