@@ -1,203 +1,80 @@
 "use client"
 
-import type React from "react"
+import { useEffect, useState } from "react"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SentimentGauge } from "@/components/sentiment-gauge-landing"
-import { Check, TrendingUp } from "lucide-react"
+interface SentimentGaugeProps {
+  value: number
+  crypto: string
+}
 
-export function AudioAlphaLanding() {
-  const [email, setEmail] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [error, setError] = useState("")
+export function SentimentGauge({ value, crypto }: SentimentGaugeProps) {
+  const [animatedValue, setAnimatedValue] = useState(0)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedValue(value)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [value])
 
-    if (!email || !email.includes("@")) {
-      setError("Please enter a valid email address")
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      if (response.ok) {
-        setIsSubmitted(true)
-        setEmail("")
-      } else {
-        setError("Something went wrong. Please try again.")
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.")
-    } finally {
-      setIsSubmitting(false)
-    }
+  const getSentimentColor = (val: number) => {
+    if (val >= 70) return "#10b981" // green
+    if (val >= 40) return "#f59e0b" // amber
+    return "#ef4444" // red
   }
 
+  const getSentimentLabel = (val: number) => {
+    if (val >= 70) return "Bullish"
+    if (val >= 40) return "Neutral"
+    return "Bearish"
+  }
+
+  const rotation = (animatedValue / 100) * 180 - 90
+  const color = getSentimentColor(value)
+  const label = getSentimentLabel(value)
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Animated background grid */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20" />
+    <div className="relative">
+      <svg viewBox="0 0 200 120" className="w-full">
+        {/* Background arc */}
+        <path
+          d="M 20 100 A 80 80 0 0 1 180 100"
+          fill="none"
+          stroke="rgb(51, 65, 85)"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
 
-      <div className="relative">
-        {/* Header */}
-        <header className="border-b border-slate-800/50 backdrop-blur-sm">
-          <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">AudioAlpha</span>
-            </div>
-            <div className="text-sm text-slate-400">Coming Soon</div>
-          </div>
-        </header>
+        {/* Colored arc */}
+        <path
+          d="M 20 100 A 80 80 0 0 1 180 100"
+          fill="none"
+          stroke={color}
+          strokeWidth="12"
+          strokeLinecap="round"
+          strokeDasharray="251.2"
+          strokeDashoffset={251.2 - (251.2 * animatedValue) / 100}
+          style={{
+            transition: "stroke-dashoffset 1.5s ease-out",
+          }}
+        />
 
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-block mb-4 px-4 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full">
-                <span className="text-sm font-medium text-cyan-400">The Future of Crypto Sentiment Analysis</span>
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 text-balance">
-                Get Your Edge with{" "}
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                  Audio Intelligence
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-slate-300 mb-4 text-pretty">
-                The only AI dashboard providing real-time sentiment insights from cryptocurrency podcasts
-              </p>
-              <div className="flex items-center justify-center gap-8 text-slate-400 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="font-mono text-cyan-400 font-semibold">22,146</span> podcasts analyzed
-                </div>
-                <div>and counting...</div>
-              </div>
-            </div>
+        {/* Needle */}
+        <g transform={`rotate(${rotation} 100 100)`} style={{ transition: "transform 1.5s ease-out" }}>
+          <line x1="100" y1="100" x2="100" y2="30" stroke={color} strokeWidth="3" strokeLinecap="round" />
+          <circle cx="100" cy="100" r="6" fill={color} />
+        </g>
 
-            {/* Sentiment Gauges Preview */}
-            <div className="grid md:grid-cols-2 gap-8 mb-20">
-              <div className="backdrop-blur-xl bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-white">Bitcoin</h3>
-                  <span className="text-sm text-slate-400">BTC</span>
-                </div>
-                <SentimentGauge value={72} crypto="BTC" />
-                <div className="mt-6 pt-6 border-t border-slate-700/50">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">24h Change</span>
-                    <span className="text-green-400 font-medium">+8.3%</span>
-                  </div>
-                </div>
-              </div>
+        {/* Center circle */}
+        <circle cx="100" cy="100" r="8" fill="rgb(15, 23, 42)" />
+      </svg>
 
-              <div className="backdrop-blur-xl bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-white">Ethereum</h3>
-                  <span className="text-sm text-slate-400">ETH</span>
-                </div>
-                <SentimentGauge value={65} crypto="ETH" />
-                <div className="mt-6 pt-6 border-t border-slate-700/50">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">24h Change</span>
-                    <span className="text-green-400 font-medium">+5.7%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Email Signup */}
-            <div className="max-w-2xl mx-auto">
-              <div className="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-2xl p-8 md:p-12 shadow-2xl">
-                <h2 className="text-3xl font-bold text-white mb-4 text-center">Get Early Beta Access</h2>
-                <p className="text-slate-300 text-center mb-8">
-                  Join the waitlist and be the first to access AudioAlpha when we launch
-                </p>
-
-                {isSubmitted ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-green-500/20 border border-green-500/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Check className="w-8 h-8 text-green-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">You're on the list!</h3>
-                    <p className="text-slate-400">We'll notify you when AudioAlpha launches.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email address"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="h-14 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500 text-lg"
-                        disabled={isSubmitting}
-                      />
-                      {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full h-14 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-lg shadow-lg shadow-cyan-500/25"
-                    >
-                      {isSubmitting ? "Joining..." : "Join the Waitlist"}
-                    </Button>
-                  </form>
-                )}
-              </div>
-            </div>
-
-            {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 mt-20">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🎙️</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Audio-First Analysis</h3>
-                <p className="text-slate-400 text-sm">
-                  Analyze sentiment from thousands of crypto podcasts in real-time
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🤖</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">AI-Powered Insights</h3>
-                <p className="text-slate-400 text-sm">Advanced AI models extract meaningful sentiment signals</p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Real-Time Dashboard</h3>
-                <p className="text-slate-400 text-sm">Track sentiment shifts across Bitcoin, Ethereum, and more</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-800/50 py-8">
-          <div className="container mx-auto px-4 text-center text-slate-500 text-sm">
-            <p>&copy; 2025 AudioAlpha. All rights reserved.</p>
-          </div>
-        </footer>
+      {/* Value display */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center mt-8">
+        <div className="text-4xl font-bold text-white">{animatedValue}%</div>
+        <div className="text-sm font-medium mt-1" style={{ color }}>
+          {label}
+        </div>
       </div>
     </div>
   )
