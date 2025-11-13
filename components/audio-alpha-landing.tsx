@@ -13,15 +13,15 @@ export function AudioAlphaLanding() {
   const [error, setError] = useState("");
 
   // ✅ Ensure reCAPTCHA script loads client-side
-  useEffect(() => {
-    if (typeof window !== "undefined" && !window.grecaptcha) {
-      const script = document.createElement("script");
-      script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined" && !window.grecaptcha) {
+  //     const script = document.createElement("script");
+  //     script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`;
+  //     script.async = true;
+  //     script.defer = true;
+  //     document.head.appendChild(script);
+  //   }
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
