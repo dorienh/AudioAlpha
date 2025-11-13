@@ -11,22 +11,32 @@ export async function POST(request: Request) {
   try {
     const { email, token } = await request.json();
 
+    // 1️⃣ Validate email
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
 
-    // Verify reCAPTCHA
+    // 2️⃣ Verify reCAPTCHA (form-encoded POST)
+    const params = new URLSearchParams();
+    params.append("secret", process.env.RECAPTCHA_SECRET_KEY!);
+    params.append("response", token);
+
     const recaptchaRes = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
-      { method: "POST" }
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params,
+      }
     );
+
     const recaptchaData = await recaptchaRes.json();
 
     if (!recaptchaData.success || recaptchaData.score < 0.5) {
       return NextResponse.json({ error: "reCAPTCHA verification failed" }, { status: 400 });
     }
 
-    // Insert into Supabase
+    // 3️⃣ Insert into Supabase
     const { error } = await supabase.from("waitlist").insert([{ email }]);
 
     if (error) {
