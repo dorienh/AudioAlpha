@@ -4,6 +4,7 @@ export default function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   async function handleSubmit(e: React.FormEvent) {
+    console.log("handleSubmit called")
     e.preventDefault();
     setStatus("Submitting...");
     try {
