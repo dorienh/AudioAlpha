@@ -8,7 +8,9 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
+    console.log("⚡ /api/waitlist POST called");
     const { email, token } = await request.json();
+    console.log("📨 Received body:", body);
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
