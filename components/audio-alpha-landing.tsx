@@ -41,10 +41,16 @@ export function AudioAlphaLanding() {
         throw new Error("reCAPTCHA not loaded yet");
       }
 
-      const token = await grecaptcha.execute(
-        process.env.NEXT_PUBLIC_RECAPTCHA_KEY!,
-        { action: "submit" }
-      );
+      const token = await new Promise<string>((resolve, reject) => {
+      if (!window.grecaptcha) return reject(new Error("reCAPTCHA not loaded"));
+    
+        window.grecaptcha.ready(() => {
+          window.grecaptcha
+            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_KEY!, { action: "submit" })
+            .then(resolve)
+            .catch(reject);
+        });
+      });
 
       console.log("🧩 reCAPTCHA token:", token.slice(0, 20) + "...");
 
