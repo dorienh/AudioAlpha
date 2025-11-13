@@ -24,43 +24,35 @@ export function AudioAlphaLanding() {
   // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email || !email.includes("@")) {
-      setError("Please enter a valid email address");
-      return;
+  e.preventDefault();
+  setError("");
+  if (!email || !email.includes("@")) {
+    setError("Please enter a valid email address");
+    return;
+  }
+  setIsSubmitting(true);
+  try {
+    console.log("Submitting email:", email);
+    const response = await fetch("/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    console.log("Server response:", data);
+    if (response.ok) {
+      setIsSubmitted(true);
+      setEmail("");
+    } else {
+      setError(data.error || "Something went wrong. Please try again.");
     }
-
-    setIsSubmitting(true);
-
-    // try {
-    //   // ✅ Get reCAPTCHA token before sending to backend
-    //   const grecaptcha = window.grecaptcha;
-    //   if (!grecaptcha) {
-    //     throw new Error("reCAPTCHA not loaded yet");
-    //   }
-
-    //   const token = await new Promise<string>((resolve, reject) => {
-    //   if (!window.grecaptcha) return reject(new Error("reCAPTCHA not loaded"));
-    
-    //     window.grecaptcha.ready(() => {
-    //       window.grecaptcha
-    //         .execute(process.env.NEXT_PUBLIC_RECAPTCHA_KEY!, { action: "submit" })
-    //         .then(resolve)
-    //         .catch(reject);
-    //     });
-    //   });
-
-    //   console.log("🧩 reCAPTCHA token:", token.slice(0, 20) + "...");
-
-      // ✅ Send to API
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token }),
-      });
-
+  } catch (err: any) {
+    console.error("❌ Submission error:", err);
+    setError(err.message || "Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
       const data = await response.json();
       console.log("Server response:", data);
 
