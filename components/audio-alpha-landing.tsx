@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,7 @@ export function AudioAlphaLanding() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ Ensure reCAPTCHA script loads client-side
+  // Ensure reCAPTCHA script loads client-side
   // useEffect(() => {
   //   if (typeof window !== "undefined" && !window.grecaptcha) {
   //     const script = document.createElement("script");
@@ -24,38 +23,22 @@ export function AudioAlphaLanding() {
   // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  if (!email || !email.includes("@")) {
-    setError("Please enter a valid email address");
-    return;
-  }
-  setIsSubmitting(true);
-  try {
-    console.log("Submitting email:", email);
-    const response = await fetch("/api/waitlist", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await response.json();
-    console.log("Server response:", data);
-    if (response.ok) {
-      setIsSubmitted(true);
-      setEmail("");
-    } else {
-      setError(data.error || "Something went wrong. Please try again.");
+    e.preventDefault();
+    setError("");
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address");
+      return;
     }
-  } catch (err: any) {
-    console.error("❌ Submission error:", err);
-    setError(err.message || "Something went wrong. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    setIsSubmitting(true);
+    try {
+      console.log("Submitting email:", email);
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
       const data = await response.json();
       console.log("Server response:", data);
-
       if (response.ok) {
         setIsSubmitted(true);
         setEmail("");
@@ -74,7 +57,6 @@ export function AudioAlphaLanding() {
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       {/* Background grid */}
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20" />
-
       <div className="relative">
         {/* Header */}
         <header className="border-b border-slate-800/50 backdrop-blur-sm">
@@ -88,7 +70,6 @@ export function AudioAlphaLanding() {
             <div className="text-sm text-slate-400">Coming Soon</div>
           </div>
         </header>
-
         {/* Hero */}
         <section className="container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-6xl mx-auto">
@@ -118,7 +99,6 @@ export function AudioAlphaLanding() {
                 <div>and counting...</div>
               </div>
             </div>
-
             {/* Gauges */}
             <div className="grid md:grid-cols-2 gap-8 mb-20">
               <div className="backdrop-blur-xl bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
@@ -132,7 +112,6 @@ export function AudioAlphaLanding() {
                   <span className="text-green-400 font-medium">+8.3%</span>
                 </div>
               </div>
-
               <div className="backdrop-blur-xl bg-slate-800/30 border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-white">Ethereum</h3>
@@ -145,7 +124,6 @@ export function AudioAlphaLanding() {
                 </div>
               </div>
             </div>
-
             {/* Email Signup (now with reCAPTCHA) */}
             <div className="max-w-2xl mx-auto">
               <div className="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-2xl p-8 md:p-12 shadow-2xl">
@@ -155,7 +133,6 @@ export function AudioAlphaLanding() {
                 <p className="text-slate-300 text-center mb-8">
                   Join the waitlist and be the first to access AudioAlpha when we launch
                 </p>
-
                 {isSubmitted ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-green-500/20 border border-green-500/50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -196,7 +173,6 @@ export function AudioAlphaLanding() {
             </div>
           </div>
         </section>
-
         {/* Footer */}
         <footer className="border-t border-slate-800/50 py-8">
           <div className="container mx-auto px-4 text-center text-slate-500 text-sm">
