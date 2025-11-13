@@ -39,11 +39,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
+        {/* <script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_KEY}`}
           async
           defer
-        ></script>
+        ></script> */}
       </head>
       <body className="font-sans antialiased">
         {children}
